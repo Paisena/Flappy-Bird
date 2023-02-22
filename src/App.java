@@ -11,20 +11,31 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Random;
 import java.awt.event.ActionEvent;
 
 public class App extends JFrame implements ActionListener, KeyListener {
 
-    Timer myTimer = new Timer(100, this);
+    Timer myTimer = new Timer(10, this);
 
     boolean OnorOff = true;
+
+    Bird bird = new Bird();
+
+    float[] birdPos = new float[2];
+
+    ArrayList<Pipes> pipes = new ArrayList<>();
+    
+    int spawnTimer = 0;
+
+    Random random = new Random();
 
     // create the init method
     // the init is the first method to run
 
     public App() {
 
-        super("Button Test");
+        super("Flappy Bird");
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout());
@@ -32,9 +43,11 @@ public class App extends JFrame implements ActionListener, KeyListener {
 
         addKeyListener(this);
 
+        pipes.add(new Pipes());
+
         // this is a very cool test
         myTimer.start();
-        repaint();
+        //repaint();
 
     }
 
@@ -58,6 +71,20 @@ public class App extends JFrame implements ActionListener, KeyListener {
         if (OnorOff) {
 
         }
+        bird.applyGravity();
+
+        Pipes pipe = new Pipes();
+
+        spawnTimer++;
+        for (int i = 0; i < pipes.size(); i++) {
+            pipes.get(i).x--; 
+        }
+
+        if(spawnTimer == 250){
+            pipes.add(new Pipes());
+            spawnTimer = 0;
+            System.out.println("spawned pipe");
+        }
 
         // requestFocus();
         repaint();
@@ -65,7 +92,9 @@ public class App extends JFrame implements ActionListener, KeyListener {
 
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
-
+            case 32:
+                bird.jump();
+                break;
             default:
                 System.out.print("key code: " + e.getKeyCode());
                 break;
@@ -83,6 +112,15 @@ public class App extends JFrame implements ActionListener, KeyListener {
         super.paint(g);
 
         g.setColor(new Color(32, 145, 40));
+        birdPos = bird.getPosition();
+        bird.applyGravity();
+        g.fillRect((int)birdPos[0], (int)birdPos[1], 50, 50);
+        //System.out.println(birdPos[1]);
+        for (int i = 0; i < pipes.size(); i++) {
+            g.fillRect(pipes.get(i).x, pipes.get(i).y, pipes.get(i).width, pipes.get(i).topLength);
+            g.fillRect(pipes.get(i).x, pipes.get(i).topLength + pipes.get(i).lengthVariance, pipes.get(i).width, 1000);
+        }
+        drawBird(g);
 
     }
 
@@ -90,7 +128,7 @@ public class App extends JFrame implements ActionListener, KeyListener {
 
         // call the paint method
         paint(gr);
-        repaint();
+        //repaint();
     }
 
     public void startTheTimer() {
@@ -104,5 +142,9 @@ public class App extends JFrame implements ActionListener, KeyListener {
 
         myTimer.stop();
         OnorOff = false;
+    }
+
+    public void drawBird(Graphics g){
+        
     }
 }
